@@ -1,0 +1,79 @@
+/*** Available PWM pins for connecting the SERVOS
+3, 5, 6, 9, 10
+Thumb - 3
+F1 - 5
+F2 - 6
+F3- 9
+F4 - 10
+***/
+
+#include <Servo.h>
+#include <SoftwareSerial.h>
+
+int angles_rock[5]    = {170, 20,  40,  40,  170};
+int angles_paper[5]   = {40,  170, 170, 170, 40};
+int angles_scissor[5] = {170, 170, 170, 40,  170};
+
+int servoPins[5] = {3, 5, 6, 9, 10};  // Thumb, F1, F2, F3, F4
+
+// One Servo object per finger
+Servo thumb;   // pin 3
+Servo f1;      // pin 5
+Servo f2;      // pin 6
+Servo f3;      // pin 9
+Servo f4;      // pin 10
+
+Servo servos[5];  // array for easy looping
+
+void setup() {
+    Serial.begin(115200);
+    
+    // Attach each servo to its pin
+    servos[0].attach(3);   // Thumb
+    servos[1].attach(5);   // F1
+    servos[2].attach(6);   // F2
+    servos[3].attach(9);   // F3
+    servos[4].attach(10);  // F4
+    
+    // Start all fingers in paper position
+    setAngles(angles_paper);
+    delay(1000);
+    
+    Serial.println("Ready!");
+    Serial.println("Send: r=rock, p=paper, s=scissors");
+}
+
+void loop() {
+    if (Serial.available() > 0) {
+        char cmd = Serial.read();
+        
+        switch (cmd) {
+            case 'r':
+                Serial.println("ROCK");
+                setAngles(angles_rock);
+                break;
+            
+            case 'p':
+                Serial.println("PAPER");
+                setAngles(angles_paper);
+                break;
+            
+            case 's':
+                Serial.println("SCISSORS");
+                setAngles(angles_scissor);
+                break;
+            
+            default:
+                Serial.println("Unknown. Send r, p, or s");
+                break;
+        }
+    }
+}
+
+// Set all 5 fingers to angles from an array
+void setAngles(int angles[]) {
+    for (int i = 0; i < 5; i++) {
+        servos[i].write(angles[i]);
+      //  delay(20);  // small delay between each finger
+    }
+}
